@@ -1,0 +1,5 @@
+{
+    "chat": { "title": "Chatbot de Cursos" },
+    "login": { "email": "Correo electrónico", "password": "Contraseña", "submit": "Iniciar sesión" },
+    "nav": { "home": "Inicio", "chat": "Chat", "admin": "Panel Admin", "logout": "Cerrar sesión" }
+  }
