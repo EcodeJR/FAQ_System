@@ -19,31 +19,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6">
-      <h2 className="text-2xl mb-4">{t('login.submit')}</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label>{t('login.email')}</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full border p-2"
-          />
+    <div className='h-screen w-full bg-gray-900 text-white flex items-center justify-center'>
+        <div className="max-w-md mx-auto p-6 text-gray-900 bg-white rounded-xl">
+        <h2 className="text-2xl mb-4">{t('login.submit')}</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+            <label>{t('login.email')}</label>
+            <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full border p-2"
+            />
+            </div>
+            <div>
+            <label>{t('login.password')}</label>
+            <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full border p-2"
+            />
+            </div>
+            <button type="submit" className="btn w-full">{t('login.submit')}</button>
+        </form>
         </div>
-        <div>
-          <label>{t('login.password')}</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full border p-2"
-          />
-        </div>
-        <button type="submit" className="btn w-full">{t('login.submit')}</button>
-      </form>
     </div>
   );
 }

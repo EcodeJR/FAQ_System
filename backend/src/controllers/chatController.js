@@ -19,27 +19,32 @@ exports.getResponse = async (req, res) => {
 
   // 3. Fallback to Gemini AI
   const endpoint = process.env.GEMINI_ENDPOINT;
-  const apiKey   = process.env.GEMINI_API_KEY;
-  const model    = process.env.GEMINI_MODEL;
+  const apiKey = process.env.GEMINI_API_KEY;
+  const model = process.env.GEMINI_MODEL;
 
   if (!endpoint || !apiKey || !model) {
     return res.status(500).json({ message: 'Gemini configuration missing' });
   }
 
   try {
+    const url = `${endpoint}/${model}:generateContent?key=${apiKey}`;
     const gmRes = await axios.post(
-      `${endpoint}?key=${apiKey}`,
+      url,
       {
-        model,
-        prompt: { text: message },
-        temperature: 0.7
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: message }]
+          }
+        ]
       },
       {
         headers: { 'Content-Type': 'application/json' }
       }
     );
-    const generated = gmRes.data.candidates?.[0]?.content || 'No response';
+    const generated = gmRes.data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
     return res.json({ answer: generated });
+
   } catch (err) {
     console.error('Gemini API error:', err.response?.data || err.message);
     return res.status(500).json({ message: 'Error calling Gemini AI' });
