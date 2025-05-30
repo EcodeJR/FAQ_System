@@ -12,6 +12,7 @@ import PrivateRoute from './components/PrivateRoute';
 import FaqPage from './pages/FaqPage';
 import CoursesPage from './pages/CoursesPage';
 import HomePage from './pages/HomePage';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
             } 
           />
           <Route path="/" element={<HomePage />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

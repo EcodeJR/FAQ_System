@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 
@@ -9,6 +9,15 @@ export default function Chat({ initialMessage = '' }) {
   );
   const [input, setInput] = useState(initialMessage);
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const formatMessage = (text) => {
     const lines = text.split('\n');
@@ -83,55 +92,87 @@ export default function Chat({ initialMessage = '' }) {
   }, [initialMessage]);
 
   return (
-    <div className="p-4 text-black">
-      <h1 className="text-xl mb-4 text-white">{t('chat.title')}</h1>
-      <div className="border rounded-lg p-4 h-[70vh] overflow-y-auto mb-4 bg-gray-50">
-        {messages.map((m, idx) => (
-          <div 
-            key={idx} 
-            className={`mb-4 ${m.sender === 'user' ? 'text-right' : 'text-left'}`}
-          >
+    <div className="flex flex-col h-screen bg-gray-900 p-4 md:p-6">
+      <h1 className="text-xl md:text-2xl mb-4 text-green-400 font-semibold">
+        {t('chat.title')}
+      </h1>
+      
+      <div className="flex-grow border border-gray-700 rounded-lg bg-gray-800 overflow-hidden flex flex-col">
+        {/* Messages Container */}
+        <div className="flex-grow overflow-y-auto p-4 space-y-4">
+          {messages.map((m, idx) => (
             <div 
-              className={`inline-block max-w-[70%] p-3 rounded-lg ${
-                m.sender === 'user' 
-                  ? 'bg-blue-500 text-white rounded-br-none' 
-                  : 'bg-gray-200 text-gray-800 rounded-bl-none'
-              }`}
+              key={idx} 
+              className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {formatMessage(m.text)}
-            </div>
-          </div>
-        ))}
-        {isLoading && (
-          <div className="text-left">
-            <div className="inline-block bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none">
-              <div className="flex space-x-2 items-center">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div 
+                className={`max-w-[85%] md:max-w-[75%] p-3 rounded-2xl ${
+                  m.sender === 'user' 
+                    ? 'bg-green-500 text-white ml-4 rounded-tr-none' 
+                    : 'bg-gray-700 text-gray-100 mr-4 rounded-tl-none'
+                } shadow-lg`}
+              >
+                {formatMessage(m.text)}
               </div>
             </div>
-          </div>
-        )}
-      </div>
-      <form onSubmit={sendMessage} className="flex gap-2">
-        <input
-          className="flex-grow rounded-lg border border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={t('Ask about a course') || "Type your message..."}
-          disabled={isLoading}
-          required
-        />
-        <button 
-          type="submit" 
-          className={`px-4 py-2 rounded-lg bg-blue-500 text-white font-medium
-            ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
-          disabled={isLoading}
+          ))}
+          
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-700 text-gray-100 p-4 rounded-2xl rounded-tl-none shadow-lg">
+                <div className="flex space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" 
+                       style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" 
+                       style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" 
+                       style={{ animationDelay: '300ms' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Form */}
+        <form 
+          onSubmit={sendMessage} 
+          className="p-4 bg-gray-750 border-t border-gray-700 flex gap-2"
         >
-          {isLoading ? t('chat.sending') || 'Sending...' : t('chat.send') || 'Send'}
-        </button>
-      </form>
+          <input
+            className="flex-grow px-4 py-2 bg-gray-700 text-white rounded-lg 
+                     border border-gray-600 focus:outline-none focus:border-green-500
+                     focus:ring-2 focus:ring-green-500 focus:ring-opacity-50
+                     placeholder-gray-400"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={t('Ask about a course') || "Type your message..."}
+            disabled={isLoading}
+            required
+          />
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className={`px-6 py-2 rounded-lg font-medium transition-all duration-200
+              ${isLoading 
+                ? 'bg-gray-600 cursor-not-allowed' 
+                : 'bg-green-500 hover:bg-green-600 active:scale-95'
+              } text-white shadow-lg`}
+          >
+            {isLoading ? (
+              <span className="flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {t('chat.sending')}
+              </span>
+            ) : (
+              t('Send')
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

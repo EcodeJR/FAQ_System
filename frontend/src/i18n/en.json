@@ -1,5 +1,10 @@
 {
-    "chat": { "title": "Course Chatbot" },
+    "chat": {
+    "title": "Course Assistant",
+    "sending": "Sending...",
+    "placeholder": "Ask about a course...",
+    "error": "Sorry, something went wrong"
+  },
     "login": { "email": "Email", "password": "Password", "submit": "Login" },
     "nav": { "home": "Home", "chat": "Chat", "admin": "Admin Panel", "logout": "Logout" }
-  }
+}

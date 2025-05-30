@@ -10,10 +10,17 @@ exports.getResponse = async (req, res) => {
   const faq = await Faq.findOne({ question: message, locale });
   if (faq) return res.json({ answer: faq.answer });
 
-  // 2. Course lookup
+  // 2. Course lookup USING COURSE CODE
   const course = await Course.findOne({ code: message, locale });
   if (course) {
     const details = `${course.code} - ${course.title}: ${course.description}`;
+    return res.json({ answer: details });
+  }
+
+  // 3. Course lookup USING COURSE TITLE
+  const courseTitle = await Course.findOne({ title: message, locale });
+  if (courseTitle) {
+    const details = `${courseTitle.code} - ${courseTitle.title}: ${courseTitle.description}`;
     return res.json({ answer: details });
   }
 
