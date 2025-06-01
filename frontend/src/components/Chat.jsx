@@ -146,7 +146,7 @@ export default function Chat({ initialMessage = '' }) {
                      placeholder-gray-400"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t('Ask about a course') || "Type your message..."}
+            placeholder={t('chat.askAboutCourse') || "Type your message..."}
             disabled={isLoading}
             required
           />
@@ -168,7 +168,7 @@ export default function Chat({ initialMessage = '' }) {
                 {t('chat.sending')}
               </span>
             ) : (
-              t('Send')
+              t('chat.send')
             )}
           </button>
         </form>

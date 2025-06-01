@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
 export default function AddFaqForm() {
@@ -6,6 +7,7 @@ export default function AddFaqForm() {
   const [answer, setAnswer] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,8 +18,19 @@ export default function AddFaqForm() {
       await api.post('/faqs', { question, answer, locale: 'en' });
       setQuestion('');
       setAnswer('');
+      // Optional: Show success message or redirect
+      // navigate('/faqs');
+      alert('FAQ added successfully!');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add FAQ');
+      if (err.response?.status === 401) {
+        setError('Please log in to add FAQs');
+        // Optionally redirect to login page
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        setError(err.response?.data?.message || 'Failed to add FAQ');
+      }
     } finally {
       setIsLoading(false);
     }

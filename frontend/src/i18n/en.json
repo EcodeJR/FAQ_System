@@ -1,10 +1,25 @@
 {
-    "chat": {
+  "chat": {
     "title": "Course Assistant",
     "sending": "Sending...",
     "placeholder": "Ask about a course...",
-    "error": "Sorry, something went wrong"
+    "error": "Sorry, something went wrong",
+    "send": "Send",
+    "askAboutCourse": "Ask about a course..."
   },
-    "login": { "email": "Email", "password": "Password", "submit": "Login" },
-    "nav": { "home": "Home", "chat": "Chat", "admin": "Admin Panel", "logout": "Logout" }
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Login",
+    "loading": "Logging in...",
+    "noAccount": "Don't have an account?",
+    "signupLink": "Sign up"
+  },
+  "nav": { 
+    "home": "Home", 
+    "chat": "Chat", 
+    "admin": "Admin Panel", 
+    "logout": "Logout" 
+  }
 }

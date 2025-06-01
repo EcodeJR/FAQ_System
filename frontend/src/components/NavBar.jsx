@@ -1,21 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 export default function NavBar() {
   const { user, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  const [username, setUsername] = useState("");
   const location = useLocation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
-  }, []);
 
   const isActive = (path) => {
     return location.pathname === path;
@@ -96,7 +88,7 @@ return (
             ) : (
               <div className="flex items-center space-x-2">
               <span className="text-gray-700 font-semibold">
-                Hello 👋, {username || user.username}
+                Hello 👋, {user?.username}
               </span>
             
                 <button 
@@ -214,7 +206,7 @@ return (
             ) : (
               <div className="flex items-center justify-around space-x-2 w-full">
                 <span className="text-gray-700 font-semibold">
-                  Hello 👋, {username || user.username}
+                  Hello 👋, {user?.username}
                 </span>
             
                 <button 

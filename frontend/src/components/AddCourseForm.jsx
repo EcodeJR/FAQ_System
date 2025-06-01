@@ -19,6 +19,7 @@ export default function AddCourseForm() {
       setCode('');
       setTitle('');
       setDescription('');
+      alert('Course added successfully!');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to add course');
     } finally {
