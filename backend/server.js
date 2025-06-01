@@ -15,7 +15,7 @@ app.use(express.json());
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? true  // Same origin in production
-    : ['https://url.vercel.app', 'http://localhost:5173'], // Dev origins
+    : ['https://faq-system-gray.vercel.app', 'http://localhost:5173'], // Dev origins
   credentials: true
 };
 
