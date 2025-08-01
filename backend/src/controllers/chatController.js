@@ -3,74 +3,109 @@ const axios = require('axios');
 const Faq = require('../models/Faq');
 const Course = require('../models/Course');
 
+// Helper function to clean and normalize the search query
+const cleanQuery = (query) => {
+  if (!query || typeof query !== 'string') return '';
+  return query.trim().toLowerCase();
+};
+
+// Helper function to generate not found response
+const getNotFoundResponse = (locale) => {
+  const responses = {
+    en: "I couldn't find any matching information in our database.\n\nHere's what you can do:\n* Check the spelling of your query\n* Try different keywords or more specific terms\n* Browse our FAQ section for common questions\n* Explore our course catalog for available programs\n\nHow else can I assist you today?",
+    // Add more language variations as needed
+  };
+  return responses[locale] || responses.en;
+};
+
 exports.getResponse = async (req, res) => {
-  const { message, locale } = req.body;
+  const { message, locale = 'en' } = req.body;
+  const cleanedQuery = cleanQuery(message);
+
+  // Input validation
+  if (!cleanedQuery) {
+    return res.status(400).json({
+      answer: 'Please provide a valid message.'
+    });
+  }
 
   try {
-    // Set timeout for the request
+    // Set timeout for the request (25 seconds)
     res.setTimeout(25000, () => {
-      res.status(503).json({ 
-        message: 'Request timed out. Please try again.' 
-      });
+      if (!res.headersSent) {
+        res.status(503).json({ 
+          answer: 'Request timed out. Please try again with a different query.'
+        });
+      }
     });
 
-    // 1. FAQ lookup with better error handling
+    // 1. FAQ lookup
     try {
-      const faq = await Faq.findOne({ question: message, locale });
-      if (faq) return res.json({ answer: faq.answer });
+      const faq = await Faq.findOne({ 
+        $or: [
+          { question: { $regex: new RegExp(cleanedQuery, 'i') } },
+          { keywords: { $in: [cleanedQuery] } }
+        ],
+        locale 
+      });
+      
+      if (faq) {
+        return res.json({ 
+          answer: faq.answer,
+          source: 'faq',
+          reference: faq.reference || null
+        });
+      }
     } catch (err) {
       console.error('FAQ lookup error:', err);
+      // Continue to next search method on error
     }
 
-    // 2. Course lookup with better error handling
+    // 2. Course lookup
     try {
       const course = await Course.findOne({ 
         $or: [
-          { code: { $regex: new RegExp(message, 'i') } },
-          { title: { $regex: new RegExp(message, 'i') } }
+          { code: { $regex: new RegExp(cleanedQuery, 'i') } },
+          { title: { $regex: new RegExp(cleanedQuery, 'i') } },
+          { description: { $regex: new RegExp(cleanedQuery, 'i') } }
         ],
         locale 
       });
       
       if (course) {
-        const details = `${course.code} - ${course.title}: ${course.description}`;
-        return res.json({ answer: details });
+        const details = `**${course.code} - ${course.title}**\n\n${course.description}\n\n` +
+          `* Credits: ${course.credits || 'N/A'}\n` +
+          `* Level: ${course.level || 'N/A'}\n` +
+          (course.prerequisites ? `* Prerequisites: ${course.prerequisites}\n` : '') +
+          (course.availability ? `* Availability: ${course.availability}` : '');
+        
+        return res.json({ 
+          answer: details,
+          source: 'course',
+          courseId: course._id
+        });
       }
     } catch (err) {
       console.error('Course lookup error:', err);
+      // Continue to return not found response
     }
 
-    // 3. Fallback to Gemini AI
-    const endpoint = process.env.GEMINI_ENDPOINT;
-    const apiKey = process.env.GEMINI_API_KEY;
-    const model = process.env.GEMINI_MODEL;
-
-    if (!endpoint || !apiKey || !model) {
-      return res.status(500).json({ 
-        message: 'AI service is currently unavailable' 
-      });
-    }
-
-    const gmRes = await axios.post(
-      `${endpoint}/${model}:generateContent?key=${apiKey}`,
-      {
-        contents: [{ role: 'user', parts: [{ text: message }] }]
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 20000
-      }
-    );
-
-    const generated = gmRes.data.candidates?.[0]?.content?.parts?.[0]?.text 
-      || 'I apologize, but I could not generate a response. Please try again.';
-    
-    return res.json({ answer: generated });
+    // 3. No results found
+    return res.json({
+      answer: getNotFoundResponse(locale),
+      source: 'not_found',
+      suggestions: [
+        'How do I apply for a course?',
+        'What are the admission requirements?',
+        'List all available courses',
+        'Contact information'
+      ]
+    });
 
   } catch (err) {
-    console.error('Chat error:', err);
+    console.error('Chat processing error:', err);
     return res.status(500).json({ 
-      message: 'An error occurred while processing your request' 
+      answer: 'An unexpected error occurred while processing your request. Please try again later.'
     });
   }
 };
