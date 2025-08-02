@@ -11,7 +11,7 @@ export default function HomePage() {
         
         <p className="max-w-xl text-center mb-8 text-gray-300 text-sm md:text-base leading-relaxed">
           Welcome to the localized chatbot system for university course information and frequently asked questions.
-          Chat in real-time, browse all FAQs, or explore course details-all in English for now.
+          Chat in real-time, browse all FAQs, or explore course details.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4 w-full sm:w-auto">

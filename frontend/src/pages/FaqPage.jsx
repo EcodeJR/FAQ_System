@@ -3,6 +3,8 @@ import api from '../services/api';
 
 export default function FaqPage() {
   const [faqs, setFaqs] = useState([]);
+  const [filteredFaqs, setFilteredFaqs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [openId, setOpenId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,6 +14,7 @@ export default function FaqPage() {
     api.get('/faqs?locale=en')
       .then(res => {
         setFaqs(res.data);
+        setFilteredFaqs(res.data);
       })
       .catch(err => {
         setError('Failed to load FAQs');
@@ -25,9 +28,42 @@ export default function FaqPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl mb-6 text-green-400 font-bold border-b border-gray-700 pb-4">
-          All FAQs
-        </h2>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+          <h2 className="text-3xl text-green-400 font-bold">
+            All FAQs
+          </h2>
+          <div className="relative w-full md:w-80">
+            <input
+              type="text"
+              placeholder="Search FAQs..."
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              value={searchTerm}
+              onChange={(e) => {
+                const term = e.target.value.toLowerCase();
+                setSearchTerm(term);
+                const filtered = faqs.filter(faq => 
+                  faq.question.toLowerCase().includes(term) || 
+                  faq.answer.toLowerCase().includes(term) ||
+                  (faq.keywords && faq.keywords.some(keyword => 
+                    keyword.toLowerCase().includes(term)
+                  ))
+                );
+                setFilteredFaqs(filtered);
+              }}
+            />
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilteredFaqs(faqs);
+                }}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -39,11 +75,11 @@ export default function FaqPage() {
           </div>
         ) : faqs.length === 0 ? (
           <div className="text-gray-400 text-center py-8 bg-gray-800 rounded-lg">
-            No FAQs available
+            {searchTerm ? 'No FAQs match your search' : 'No FAQs available'}
           </div>
         ) : (
           <div className="space-y-4">
-            {faqs.map(faq => (
+            {filteredFaqs.map(faq => (
               <div 
                 key={faq._id} 
                 className="bg-gray-800 p-4 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-green-900/20"
